@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Choo Choo</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+  <style type="text/css">
+    
+    .head{
+        width: 100%;
+        height: 200px;
+        background: #000000;
+        color: #ffffff;
+        text-align: center;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .trainLetter{
+      background-color: #2C2C2C;
+      font-size: 50px;
+      margin: 5px;
+      width: 200px;
+      padding-left: 10px;
+      padding-right:10px;
+      border-radius: 5px; 
+    }
+
+    .ligne{
+      border: solid 1px #000000;
+      position: relative;
+      top :38px;
+
+    }
+
+    .ligne2{
+      border: solid 1px #000000;
+      position: relative;
+      top :38px;
+
+    }
+
+    .panel-default>.panel-heading{
+      background-color: #000000;
+      border:none;
+      height: 50px;
+    }
+
+    .panel-default{
+      border:#000000 solid 1px;
+    }
+
+    .btn{
+      background-color: #000000;
+      color: #ffffff;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="head">
+    <div class="ligne"></div>
+      <span class="trainLetter">A</span><span class="trainLetter">N</span><span class="trainLetter">Y</span><span class="trainLetter">T</span><span class="trainLetter">I</span><span class="trainLetter">M</span><span class="trainLetter">E</span>  <span class="trainLetter">I</span><span class="trainLetter">S</span>  <span class="trainLetter">T</span><span class="trainLetter">R</span><span class="trainLetter">A</span><span class="trainLetter">I</span><span class="trainLetter">N</span>  <span class="trainLetter">T</span><span class="trainLetter">I</span><span class="trainLetter">M</span><span class="trainLetter">E</span>
+  
+  <div class="ligne2"></div>
+      <p><span class="trainLetter">C</span><span class="trainLetter">H</span><span class="trainLetter">O</span><span class="trainLetter">O</span> <span class="trainLetter">C</span><span class="trainLetter">H</span><span class="trainLetter">O</span><span class="trainLetter">O</span> <span class="trainLetter">!</span></p>
+    </div>
+
+    <div class="panel panel-default">
+    <div class="panel-heading"></div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Train Name</th>
+          <th>Destination</th>
+          <th>Frequency (min)</th>
+          <th>Next Arrival</th>
+          <th>Minutes Away</th>
+        </tr>
+      </thead>
+      <tbody id="myTable">
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel panel-default">
+  <div class="panel-heading"></div>
+  <div class="panel-body">
+        <form>
+      <div class="form-group">
+        <label for="trainName">Train Name</label>
+        <input type="text" class="form-control" id="trainName" placeholder="Train Name">
+      </div>
+      <div class="form-group">
+        <label for="destination">Destination</label>
+        <input type="text" class="form-control" id="destination" placeholder="destination">
+      </div>
+      <div class="form-group">
+        <label for="nextArrival">First Train Time (HH:mm)</label>
+        <input type="text" class="form-control" id="firstTrainTime" placeholder="First Train Time">
+      </div>
+      <div class="form-group">
+        <label for="frequency">Frequency (min)</label>
+        <input type="number" class="form-control" id="frequency" placeholder="Frequency">
+      </div>
+      
+
+
+      <button type="submit" id="submit-btn" class="btn btn-default">Submit</button>
+    </form>
+  </div>
+  </div>
+
+  </div>
+  <script src="https://www.gstatic.com/firebasejs/3.7.1/firebase.js"></script>
+  <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="https://momentjs.com/downloads/moment.min.js"></script>
+  <script type="text/javascript">
+  var config = {
+    apiKey: "AIzaSyBghDY2mP8BnT8akFgeMYmfIFDGvRdkgTA",
+    authDomain: "whatever-61c2e.firebaseapp.com",
+    databaseURL: "https://whatever-61c2e.firebaseio.com",
+    storageBucket: "whatever-61c2e.appspot.com",
+    messagingSenderId: "516683077312"
+  };
+  firebase.initializeApp(config);
+
+
+
+// Create a variable to reference the database
+var database = firebase.database();
+
+
+
+    // Capture Button Click
+    $("#submit-btn").on("click", function() {
+      // Don't refresh the page!
+      event.preventDefault();
+
+
+      // Code in the logic for storing and retrieving the most recent user.
+      var trainName = $("#trainName").val().trim();
+      var destination = $("#destination").val().trim();
+      var frequency = $("#frequency").val().trim();
+      var firstTrainTime = $("#firstTrainTime").val().trim();
+      
+
+        database.ref().push({
+        theName: trainName,
+        theDestination: destination,
+        theFrequency: frequency,
+        theFirstTrainTime: firstTrainTime
+      });
+
+    });
+
+
+database.ref().on("child_added", function(childSnapshot){
+
+var time = moment(childSnapshot.val().theFirstTrainTime, "HH:mm");
+var currentTime = moment();
+
+var theDifference = (currentTime.diff(time, 'minutes'));
+
+var myTrainName = childSnapshot.val().theName;
+var myDestination = childSnapshot.val().theDestination;
+var myFrequency = childSnapshot.val().theFrequency;
+var myLastTrain = theDifference%myFrequency;
+var myMinutesAway = myFrequency - (myLastTrain);
+var myNextArrival = currentTime.add(myMinutesAway, 'minutes').format("hh:mm A");
+
+//display in table here
+$("#myTable").append("<tr><td>"+childSnapshot.val().theName+ "</td><td>"+childSnapshot.val().theDestination+"</td><td>"+childSnapshot.val().theFrequency+"</td><td>"+myNextArrival+"</td><td>"+myMinutesAway+"</td></tr>");
+
+}, function(errorObject){
+
+  // Then include Firebase error logging
+  console.log("The read failed: " + errorObject.code);
+
+})
+
+
+  
+  </script>
+</body>
+
+</html>
